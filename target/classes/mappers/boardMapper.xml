@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.mappers.board">
+
+	<!-- 게시물 목록 -->
+	<!-- 데이터 출력은 requltType -->
+	<select id="list" resultType="com.board.domain.BoardVo">
+	 select
+	  bno, title, content, writer, regDate, viewCnt
+	 from dream_board
+	</select>
+	
+	<!-- 게시글 작성 -->
+	<!-- 데이터 입력은 parameterType -->
+	<insert id="write" parameterType="com.board.domain.BoardVo">
+	insert into
+		dream_board(title, content,writer)
+		values(#{title},#{content},#{writer})
+	</insert>
+	
+	<!-- 게시글 조회 -->
+	<select id="view" resultType="com.board.domain.BoardVo">
+	select
+		bno, title, content, writer, regDate, viewCnt
+	from
+		dream_board
+	where 
+		bno=#{bno}
+	</select>
+	
+	<!-- 게시글 수정 -->
+	<update id="modify" parameterType="com.board.domain.BoardVo">
+	update dream_board
+		set
+			title=#{title},
+			writer=#{writer},
+			content=#{content}
+		where
+			bno=#{bno}
+	</update>
+	
+	<!-- 게시글 삭제 -->
+	<delete id="delete" parameterType="int">
+	delete 
+		from dream_board
+	where bno=#{bno}
+	</delete>
+	
+	<!-- 게시글 총 갯수 -->
+	<select id="count" resultType="int">
+	select count(bno) from dream_board
+			
+	</select>
+	
+	<!-- 게시글 목록+ 페이징 -->
+	<select id="listPage" parameterType="hashMap" resultType="com.board.domain.BoardVo">
+	select
+			bno, title, writer, regDate, viewCnt
+		from dream_board
+		order by bno asc
+			limit #{displayPost}, #{displayPageNum}
+
+	</select>
+	
+	<!-- 검색 -->
+	<select id="listSearch" resultType="com.board.domain.BoardVo" parameterType="hashMap">
+	
+	select
+	  bno, title, writer, regDate, viewCnt
+	 from dream_board
+	 
+	 <if test='searchType.equals("title")'>
+	  WHERE title LIKE concat('%', #{keyword}, '%')
+	 </if>
+	 
+	 <if test='searchType.equals("content")'>
+	  WHERE content LIKE concat('%', #{keyword}, '%')
+	 </if>
+	 
+	 <if test='searchType.equals("title_content")'>
+	  WHERE title LIKE concat('%', #{keyword}, '%') 
+	   or content LIKE concat('%', #{keyword}, '%')
+	 </if>
+	 
+	 <if test='searchType.equals("writer")'>
+	  WHERE writer LIKE concat('%', #{keyword}, '%')
+	 </if>
+	 
+	 order by bno asc
+	  limit #{displayPost}, #{displayPageNum}
+</select> 
+	
+	<sql id="search">
+		<if test="searchType !=null">
+			<if test="searchType=='t'.toString()">where title like '%' || ${keyword} || '%'</if>
+			<if test="searchType=='c'.toString()">where content like '%' || ${keyword} || '%'</if>
+			<if test="searchType=='w'.toString()">where writer like '%' || ${keyword} || '%'</if>
+			<if test="searchType=='tc'.toString()">where (title like '%' || ${keyword} || '%')or (content like '%' || #{keyword}||'%")</if>
+		
+		</if>
+	</sql>
+</mapper>

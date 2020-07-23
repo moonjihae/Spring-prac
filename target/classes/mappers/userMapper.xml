@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.board.mappers.user"> 
+
+	<!-- 내회원정보 보기 -->
+	<select id="getUserInfo" resultType="com.board.domain.UserVo"> 
+	SELECT 
+	UID , 
+	NAME ,
+	PWD , 
+	EMAIL , 
+	REG_DT 
+	FROM TBL_USER
+	 WHERE UID = #{uid} 
+	</select> 
+	  <!-- 회원 조회 -->
+	<select id="getUserList" resultType="com.board.domain.UserVo"> 
+	 SELECT 
+	 UID , 
+	 NAME ,
+	 PWD , 
+	 EMAIL , 
+	 REG_DT
+	 FROM TBL_USER 
+	</select> 
+	
+	<insert id="insert" parameterType="com.board.domain.UserVo"> 
+	   
+	 insert into tbl_user
+	  (uid,name,pwd,re_pwd,email,reg_dt,user_key)
+	  values ( #{uid} , #{name} , #{pwd} ,#{re_pwd}, #{email} , now() ,"N")
+	</insert> 
+	
+	 <update id="update" parameterType="com.board.domain.UserVo">
+	  UPDATE TBL_USER
+	  SET 
+	  NAME = #{name} , 
+	  PWD = #{pwd} , 
+	  EMAIL = #{email} ,
+	  WHERE UID = #{uid} 
+	 </update> 
+	 
+	 <delete id="delete" parameterType="int"> 
+	 DELETE 
+	 FROM TBL_USER
+	 WHERE UID = #{uid} 
+	      
+	 </delete> 
+	 
+	 <!-- 로그인 -->
+	 <select id="login" resultType="com.board.domain.UserVo">
+	 select uid,pwd
+	 from TBL_USER
+	 where uid=#{uid} and user_key="Y"
+	 </select>
+	 
+	 <!-- 아이디 중복 체크 -->
+	 <select id="idChk" resultType="int">
+	 select count(*) from tbl_user
+	 where uid=#{uid}
+	 </select>
+	 
+	 <!-- 이메일 중복체크 -->
+	 <select id="emailChk" resultType="int">
+	 select count(*) from tbl_user
+	 where email=#{email}
+	 </select>
+	 
+	 <!-- 유저 인증키 생성 -->
+	 <update id="getKey" parameterType="Map">
+	 	update tbl_user 
+	 	set user_key=#{user_key}
+	 	where uid=#{uid}
+	 </update>
+	 
+	 <!-- 회원 인증키 y로 변경 -->
+	 <update id="alter_userKey">
+	 	update tbl_user set user_key="Y" 
+	 	where uid=#{uid}
+	 </update>
+</mapper>
+
